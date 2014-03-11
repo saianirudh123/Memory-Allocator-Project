@@ -1,0 +1,57 @@
+
+IT-215 Project 5: Malloc Dynamic Memory Allocator
+AR Sai Anirudh
+Pericherla Avinash
+10-03-2014
+
+DESCRIPTION
+ 
+This is Dynamic memory Allocator (DMA) based on explicit free lists, first fit placement, and boundary tag coalescing.Blocks must be aligned to doubleword (8 byte) boundaries. Minimum block size is 16 bytes. 
+ 
+We have made a hash formula for splitting the the free blocks int the respective list from the pack multiple lists created and then even search through that
+particular partitioned list which reduces the traversal through the free blocks list, so as to increase the performance
+We have added to new routines namely, Add_Free_List() and Delete_free_List(). Since we are maintaining an explict free list for keeping track 
+of the free blocks in the heap. We are adding the newly created free blocks to the list. by using Add_Free_List().
+In this function, we are using pointers to the traverse in the list. 
+We are putting the pointer to a block in the header of the previous block. 
+Since we are using a doubly linked list we are also maintaining a pointer to the previous block in the present block.
+We have also take care of the allocation status of the newly freed block, we change it to not allocated(0) and then put in the free list.
+
+The process of addition of a free block to the list is as follows:
+ 1. First we change the previous pointer of the next block to the new free block to be added.
+ 2. Secondly the next pointer of the block to be added is set to the next block.
+ 3. Next we are changing the previous pointer of the of the present pointer to the previous block
+ 4. Lastly we change the next pointer of the previous block to the presently added block
+
+We are also taking care of coalescing of the free blocks to reduce internal fragmentation.
+In the coalesce routine we are taking care of the following 4 cases:
+ 1 . Previous allocated and Next Allocated
+ 2 . Previous Free and Next Allocated 
+ 3 . Previous Allocated and Next Free
+ 4 . Previous Free and Next Free
+
+In the first case since both the blocks besides the free block are allocated we need not do anything. In the second case since the previous block is free we need to coalesce it with thee present free block. 
+After coalesceing we add delete the pointer to the present block and return the pointer to the previous block to be added in th free list.
+In the third case since the next block is free, we increase the size of present block and return the present pointer to be added to the list
+In the last case since both the blocks are free we increase the size of the block and delete the present pointer and return the previous pointer to be added in the list.
+
+
+In the Delete_Free_List() routine we are maintaining the list whenever any changes are made in the list, i.e if any of the free block is allocated then we need to terminate it from the list. 
+The process of deletion is as follows:
+ 1. We set the next pointer of the previous block to the next block and delete the next pointer of the present block.
+ 2. We set the previous pointer of the next block to the previous block and delete the previous pointer to the present block
+ 3. We have also have to set the allocation status of the deleted block as allocated (1),and hence it is removed from the list
+  
+The key function in our implimentation is the find fit routine. The technique we are using is first fit. In this technique we are search through the 
+free list for the required size or greater than the required size. If we get a hit we allocate the block without considering the best possible 
+fit we get. In our implimentation we are traversing through the explicitly maintained free list, search for the first hit and allocate it.
+
+TESTING STRATEGY
+First we started applying our strategy by trying to remove the footer. We saw that is was reducing the performance. 
+We started checking with short1 and short2 traces since they are the easiest ones.
+We used print statements at approrpriate places to come to know about the errors in our implimentation, such as overlapping of two blocks. 
+We also used the checkheap and printblock routines to check the header and footer information i.e size and the allocated status
+Printed the contents of the block where we get an error to check for the problem and made the necessary corrections.Looked into the trace files 
+and made use of maximum limit of the sizes asked and modified the code accordingly.
+
+
